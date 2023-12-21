@@ -22,7 +22,9 @@ jobs:
             target: "base"
             tags: |
               ghcr.io/ubasgezer/frankenphp/base:8.3
-
+          - context: "frankenphp/php8.3"
+            tags: |
+              ghcr.io/ubasgezer/frankenphp/dev:8.3
 
     steps:
       - name: Checkout
