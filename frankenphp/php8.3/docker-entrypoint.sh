@@ -2,6 +2,9 @@
 set -e
 
 if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
+	if [ ! -d 'vendor/' ]; then
+		composer install --prefer-dist --no-progress --no-interaction
+	fi
 	if grep -q ^DATABASE_URL= .env; then
 		echo "Waiting for database to be ready..."
 		ATTEMPTS_LEFT_TO_REACH_DATABASE=60
@@ -17,6 +20,10 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 			exit 1
 		else
 			echo "The database is now ready and reachable"
+		fi
+
+  		if [ "$( find ./migrations -iname '*.php' -print -quit )" ]; then
+			php bin/console doctrine:migrations:migrate --no-interaction
 		fi
 	fi
 
