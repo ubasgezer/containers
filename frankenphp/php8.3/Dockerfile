@@ -7,7 +7,7 @@ WORKDIR /var/www/app
 
 # persistent / runtime deps
 RUN apk add --no-cache acl file gettext git nano; git config --global --add safe.directory /var/www;
-RUN set -eux; install-php-extensions decimal intl pcntl pdo_mysql redis zip;
+RUN set -eux; install-php-extensions decimal intl pcntl pdo_mysql redis zip bcmath;
 
 COPY conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint
