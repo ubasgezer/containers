@@ -7,7 +7,7 @@ WORKDIR /var/www/app
 
 # persistent / runtime deps
 RUN apk add --no-cache acl file gettext git nano; git config --global --add safe.directory /var/www;
-RUN set -eux; install-php-extensions apcu opcache decimal intl pcntl pdo_mysql redis zip bcmath;
+RUN set -eux; install-php-extensions apcu opcache decimal intl pcntl pdo_mysql redis zip bcmath @composer;
 
 COPY conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint
@@ -22,7 +22,7 @@ CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 FROM base AS dev
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-RUN set -eux; install-php-extensions xdebug @composer;
+RUN set -eux; install-php-extensions xdebug;
 COPY conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
