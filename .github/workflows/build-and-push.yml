@@ -18,13 +18,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - context: "frankenphp/php8.2"
-            target: "base"
-            tags: |
-              ghcr.io/ubasgezer/frankenphp/base:8.2
-          - context: "frankenphp/php8.2"
-            tags: |
-              ghcr.io/ubasgezer/frankenphp/dev:8.2
           - context: "frankenphp/php8.3"
             target: "base"
             tags: |
