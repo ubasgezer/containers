@@ -25,7 +25,9 @@ jobs:
           - context: "frankenphp/php8.3"
             tags: |
               ghcr.io/ubasgezer/frankenphp/dev:8.3
-
+          - context: "php-fpm/8.3"
+            tags: |
+              ghcr.io/ubasgezer/php-fpm/dev:8.3
     steps:
       - name: Checkout
         uses: actions/checkout@v3
