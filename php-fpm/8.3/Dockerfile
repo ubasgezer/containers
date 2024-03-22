@@ -9,9 +9,8 @@ ENV APP_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-WORKDIR /opt/newrelic/
+WORKDIR /opt/
 
-RUN wget https://download.newrelic.com/php_agent/release/newrelic-php5-10.17.0.7-linux-musl.tar.gz; \
-    tar -xvzf newrelic-php5-10.17.0.7-linux-musl.tar.gz; \
-    cd newrelic-php5-10.17.0.7-linux-musl; \
-    NR_INSTALL_SILENT=true ./newrelic-install install;
+RUN NEWRELIC_FILE=$(curl -s https://download.newrelic.com/php_agent/release/ | grep -Eo 'newrelic-php5-([0-9]+\.?)+-linux-musl\.tar\.gz' | head -n 1) || exit && \
+    curl -s -L https://download.newrelic.com/php_agent/release/${NEWRELIC_FILE} | tar xvz && \
+    NR_INSTALL_SILENT=true /opt/${NEWRELIC_FILE%.tar.gz}/newrelic-install install;
