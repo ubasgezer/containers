@@ -25,6 +25,9 @@ jobs:
           - context: "php-fpm/8.3"
             tags: |
               ghcr.io/ubasgezer/php-fpm/dev:8.3
+          - context: "php-fpm/8.4"
+            tags: |
+              ghcr.io/ubasgezer/php-fpm/dev:8.4
           - context: "php-fpm/8.3-alpine"
             tags: |
               ghcr.io/ubasgezer/php-fpm/dev:8.3-alpine
