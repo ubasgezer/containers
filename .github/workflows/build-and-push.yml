@@ -18,19 +18,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - context: "frankenphp/php8.3"
-            target: "base"
-            tags: |
-              ghcr.io/ubasgezer/frankenphp/base:8.3
           - context: "php-fpm/8.3"
             tags: |
               ghcr.io/ubasgezer/php-fpm/dev:8.3
           - context: "php-fpm/8.4"
             tags: |
               ghcr.io/ubasgezer/php-fpm/dev:8.4
-          - context: "php-fpm/8.3-alpine"
+          - context: "php-fpm/8.5"
             tags: |
-              ghcr.io/ubasgezer/php-fpm/dev:8.3-alpine
+              ghcr.io/ubasgezer/php-fpm/dev:8.5
     steps:
       - name: Checkout
         uses: actions/checkout@v3
