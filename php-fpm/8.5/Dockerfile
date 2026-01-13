@@ -1,5 +1,5 @@
-#syntax=docker/dockerfile:1.4
-FROM php:8.3-fpm AS BASE
+#syntax=docker/dockerfile:1
+FROM php:8.5-fpm AS BASE
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 RUN set -eux; \
@@ -14,7 +14,7 @@ RUN set -eux; \
         nano \
         vim && \
         git config --global --add safe.directory /var/www && \
-        install-php-extensions apcu opcache intl pcntl pdo_mysql redis zip bcmath xsl soap calendar newrelic @composer && \
+        install-php-extensions apcu opcache intl pcntl pdo_mysql redis zip bcmath xsl soap calendar opentelemetry @composer && \
         rm -rf /var/lib/apt/lists/*
 
 ENV APP_ENV=prod
