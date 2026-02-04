@@ -12,6 +12,7 @@ RUN set -eux; \
         libfcgi \
         supervisor \
         nano \
+        libfcgi-bin \
         vim && \
         git config --global --add safe.directory /var/www && \
         install-php-extensions apcu opcache intl pcntl pdo_mysql redis zip bcmath xsl soap calendar newrelic @composer && \
