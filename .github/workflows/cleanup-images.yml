@@ -23,3 +23,4 @@ jobs:
           package-name: ${{ matrix.package }}
           package-type: container
           min-versions-to-keep: 10
+          ignore-versions: '^(?!.*-\d+$).*$'
