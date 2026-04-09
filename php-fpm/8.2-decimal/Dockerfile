@@ -12,7 +12,7 @@ RUN set -eux; \
         nano \
         libfcgi-bin \
         vim && \
-        install-php-extensions apcu bcmath calendar decimal intl newrelic opcache pcntl pdo_mysql redis sockets zip @composer && \
+        install-php-extensions apcu bcmath calendar decimal intl newrelic opcache pcntl pdo_mysql redis soap sockets xsl zip @composer && \
         rm -rf /var/lib/apt/lists/*
 
 ENV APP_ENV=prod
