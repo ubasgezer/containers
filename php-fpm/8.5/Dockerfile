@@ -1,5 +1,5 @@
 #syntax=docker/dockerfile:1
-FROM php:8.5-fpm AS base
+FROM php:8.5-fpm
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 RUN set -eux; \
@@ -22,11 +22,3 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 WORKDIR /var/www/app
 
-FROM base AS dev
-
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-        git; \
-    git config --global --add safe.directory /var/www; \
-    rm -rf /var/lib/apt/lists/*

@@ -1,5 +1,5 @@
 #syntax=docker/dockerfile:1.4
-FROM php:8.4-fpm AS BASE
+FROM php:8.4-fpm
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 RUN set -eux; \

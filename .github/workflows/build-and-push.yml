@@ -12,52 +12,6 @@ permissions:
   packages: write
 
 jobs:
-  dev-8-3:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.3
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.3
-            ghcr.io/ubasgezer/php-fpm/dev:8.3-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.3
-          cache-to: type=gha,mode=max,scope=dev-8.3
-
-  dev-8-4:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.4
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.4
-            ghcr.io/ubasgezer/php-fpm/dev:8.4-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.4
-          cache-to: type=gha,mode=max,scope=dev-8.4
-
   percona-8-4:
     runs-on: ubuntu-latest
     steps:
@@ -81,55 +35,6 @@ jobs:
           cache-from: type=gha,scope=percona-8.4
           cache-to: type=gha,mode=max,scope=percona-8.4
 
-  base-8-1-decimal:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.1-decimal
-          target: base
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/base:8.1-decimal
-            ghcr.io/ubasgezer/php-fpm/base:8.1-decimal-${{ github.run_number }}
-          cache-from: type=gha,scope=base-8.1-decimal
-          cache-to: type=gha,mode=max,scope=base-8.1-decimal
-
-  dev-8-1-decimal:
-    needs: base-8-1-decimal
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.1-decimal
-          target: dev
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.1-decimal
-            ghcr.io/ubasgezer/php-fpm/dev:8.1-decimal-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.1-decimal
-          cache-to: type=gha,mode=max,scope=dev-8.1-decimal
-
   base-8-2-decimal:
     runs-on: ubuntu-latest
     steps:
@@ -144,7 +49,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: php-fpm/8.2-decimal
-          target: base
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
@@ -153,31 +57,6 @@ jobs:
             ghcr.io/ubasgezer/php-fpm/base:8.2-decimal-${{ github.run_number }}
           cache-from: type=gha,scope=base-8.2-decimal
           cache-to: type=gha,mode=max,scope=base-8.2-decimal
-
-  dev-8-2-decimal:
-    needs: base-8-2-decimal
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.2-decimal
-          target: dev
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.2-decimal
-            ghcr.io/ubasgezer/php-fpm/dev:8.2-decimal-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.2-decimal
-          cache-to: type=gha,mode=max,scope=dev-8.2-decimal
 
   base-8-3-decimal:
     runs-on: ubuntu-latest
@@ -193,7 +72,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: php-fpm/8.3-decimal
-          target: base
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
@@ -202,31 +80,6 @@ jobs:
             ghcr.io/ubasgezer/php-fpm/base:8.3-decimal-${{ github.run_number }}
           cache-from: type=gha,scope=base-8.3-decimal
           cache-to: type=gha,mode=max,scope=base-8.3-decimal
-
-  dev-8-3-decimal:
-    needs: base-8-3-decimal
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.3-decimal
-          target: dev
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.3-decimal
-            ghcr.io/ubasgezer/php-fpm/dev:8.3-decimal-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.3-decimal
-          cache-to: type=gha,mode=max,scope=dev-8.3-decimal
 
   base-8-5-otel:
     runs-on: ubuntu-latest
@@ -242,7 +95,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: php-fpm/8.5-otel
-          target: base
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
@@ -251,80 +103,6 @@ jobs:
             ghcr.io/ubasgezer/php-fpm/base:8.5-otel-${{ github.run_number }}
           cache-from: type=gha,scope=base-8.5-otel
           cache-to: type=gha,mode=max,scope=base-8.5-otel
-
-  dev-8-5-otel:
-    needs: base-8-5-otel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.5-otel
-          target: dev
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.5-otel
-            ghcr.io/ubasgezer/php-fpm/dev:8.5-otel-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.5-otel
-          cache-to: type=gha,mode=max,scope=dev-8.5-otel
-
-  base-8-5-otel-alpine:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.5-otel-alpine
-          target: base
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/base:8.5-otel-alpine
-            ghcr.io/ubasgezer/php-fpm/base:8.5-otel-alpine-${{ github.run_number }}
-          cache-from: type=gha,scope=base-8.5-otel-alpine
-          cache-to: type=gha,mode=max,scope=base-8.5-otel-alpine
-
-  dev-8-5-otel-alpine:
-    needs: base-8-5-otel-alpine
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.5-otel-alpine
-          target: dev
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.5-otel-alpine
-            ghcr.io/ubasgezer/php-fpm/dev:8.5-otel-alpine-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.5-otel-alpine
-          cache-to: type=gha,mode=max,scope=dev-8.5-otel-alpine
 
   base-8-5:
     runs-on: ubuntu-latest
@@ -340,7 +118,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: php-fpm/8.5
-          target: base
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
@@ -350,27 +127,3 @@ jobs:
           cache-from: type=gha,scope=base-8.5
           cache-to: type=gha,mode=max,scope=base-8.5
 
-  dev-8-5:
-    needs: base-8-5
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: php-fpm/8.5
-          target: dev
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/dev:8.5
-            ghcr.io/ubasgezer/php-fpm/dev:8.5-${{ github.run_number }}
-          cache-from: type=gha,scope=dev-8.5
-          cache-to: type=gha,mode=max,scope=dev-8.5
