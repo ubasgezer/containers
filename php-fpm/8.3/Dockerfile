@@ -1,4 +1,4 @@
-#syntax=docker/dockerfile:1.4
+#syntax=docker/dockerfile:1
 FROM php:8.3-fpm
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
@@ -15,11 +15,11 @@ RUN set -eux; \
         libfcgi-bin \
         vim && \
         git config --global --add safe.directory /var/www && \
-        install-php-extensions apcu opcache intl pcntl pdo_mysql redis zip bcmath xsl soap calendar newrelic @composer && \
+        install-php-extensions apcu bcmath calendar intl newrelic opcache pcntl pdo_mysql redis soap xsl zip @composer && \
         rm -rf /var/lib/apt/lists/*
 
 ENV APP_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-WORKDIR /opt/
+WORKDIR /var/www/app

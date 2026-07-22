@@ -13,7 +13,7 @@ RUN set -eux; \
         nano \
         libfcgi-bin \
         vim && \
-        install-php-extensions apcu opcache intl pcntl pdo_mysql redis zip bcmath xsl soap calendar opentelemetry @composer && \
+        install-php-extensions apcu bcmath calendar intl opcache opentelemetry pcntl pdo_mysql redis soap xsl zip @composer && \
         rm -rf /var/lib/apt/lists/*
 
 ENV APP_ENV=prod
