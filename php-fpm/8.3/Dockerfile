@@ -15,7 +15,7 @@ RUN set -eux; \
         libfcgi-bin \
         vim && \
         git config --global --add safe.directory /var/www && \
-        install-php-extensions apcu bcmath calendar intl newrelic opcache pcntl pdo_mysql redis soap xsl zip @composer && \
+        install-php-extensions apcu bcmath calendar intl newrelic opcache pcntl pdo_mysql protobuf redis soap xsl zip @composer && \
         rm -rf /var/lib/apt/lists/*
 
 ENV APP_ENV=prod
