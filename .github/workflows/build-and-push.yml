@@ -79,7 +79,7 @@ jobs:
           touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
       - uses: actions/upload-artifact@v7
         with:
-          name: digests-${{ matrix.image.id }}-${{ matrix.platform }}
+          name: digests-${{ matrix.image.id }}_${{ matrix.platform }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-${{ matrix.image.id }}-*
+          pattern: digests-${{ matrix.image.id }}_*  # "_" so base-8.3 does not match base-8.3-decimal
           merge-multiple: true
       - uses: docker/setup-buildx-action@v4
       - uses: docker/login-action@v4
