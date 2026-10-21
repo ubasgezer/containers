@@ -6,17 +6,56 @@ on:
   push:
     branches: [ master ]
   workflow_dispatch:
+    inputs:
+      image:
+        description: Image to build
+        type: choice
+        default: all
+        options:
+          - all
+          - percona-8.4
+          - base-8.3
+          - base-8.3-decimal
+          - base-8.5
+          - frankenphp-8.5
+          - frankenphp-8.5-alpine
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-  percona-8-4:
+  prepare:
     runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.images.outputs.images }}
+    steps:
+      - id: images
+        env:
+          SELECTED: ${{ inputs.image || 'all' }}
+        run: |
+          images='[
+            {"id": "percona-8.4",           "context": "percona/8.4",           "name": "ghcr.io/ubasgezer/percona/dev",    "tag": "8.4"},
+            {"id": "base-8.3",              "context": "php-fpm/8.3",           "name": "ghcr.io/ubasgezer/php-fpm/base",   "tag": "8.3"},
+            {"id": "base-8.3-decimal",      "context": "php-fpm/8.3-decimal",   "name": "ghcr.io/ubasgezer/php-fpm/base",   "tag": "8.3-decimal"},
+            {"id": "base-8.5",              "context": "php-fpm/8.5",           "name": "ghcr.io/ubasgezer/php-fpm/base",   "tag": "8.5"},
+            {"id": "frankenphp-8.5",        "context": "frankenphp/8.5",        "name": "ghcr.io/ubasgezer/frankenphp/base", "tag": "8.5"},
+            {"id": "frankenphp-8.5-alpine", "context": "frankenphp/8.5-alpine", "name": "ghcr.io/ubasgezer/frankenphp/base", "tag": "8.5-alpine"}
+          ]'
+          echo "images=$(jq -c --arg s "$SELECTED" 'map(select($s == "all" or .id == $s))' <<< "$images")" >> "$GITHUB_OUTPUT"
+
+  # Each platform builds natively on its own runner and pushes by digest only
+  build:
+    name: build ${{ matrix.image.id }} (${{ matrix.platform }})
+    needs: prepare
+    runs-on: ${{ matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.prepare.outputs.images) }}
+        platform: [ amd64, arm64 ]
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
       - uses: docker/setup-buildx-action@v4
       - uses: docker/login-action@v4
         with:
@@ -24,123 +63,59 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v7
+        id: build
         with:
-          context: percona/8.4
-          platforms: linux/amd64,linux/arm64
+          context: ${{ matrix.image.context }}
+          platforms: linux/${{ matrix.platform }}
           pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/percona/dev:8.4
-          cache-from: type=gha,scope=percona-8.4
-          cache-to: type=gha,mode=max,scope=percona-8.4
+          outputs: type=image,name=${{ matrix.image.name }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ matrix.image.id }}-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image.id }}-${{ matrix.platform }}
+      - name: Export digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: digests-${{ matrix.image.id }}-${{ matrix.platform }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
-  base-8-3:
+  # Combines the per-platform digests into the multi-arch tag
+  merge:
+    name: merge ${{ matrix.image.id }}
+    needs: [ prepare, build ]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.prepare.outputs.images) }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
+      - uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ matrix.image.id }}-*
+          merge-multiple: true
       - uses: docker/setup-buildx-action@v4
       - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v7
-        with:
-          context: php-fpm/8.3
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/base:8.3
-          cache-from: type=gha,scope=base-8.3
-          cache-to: type=gha,mode=max,scope=base-8.3
-
-  base-8-3-decimal:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v7
-        with:
-          context: php-fpm/8.3-decimal
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/base:8.3-decimal
-          cache-from: type=gha,scope=base-8.3-decimal
-          cache-to: type=gha,mode=max,scope=base-8.3-decimal
-
-  base-8-5:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v7
-        with:
-          context: php-fpm/8.5
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/php-fpm/base:8.5
-          cache-from: type=gha,scope=base-8.5
-          cache-to: type=gha,mode=max,scope=base-8.5
-
-  frankenphp-8-5:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v7
-        with:
-          context: frankenphp/8.5
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/frankenphp/base:8.5
-          cache-from: type=gha,scope=frankenphp-8.5
-          cache-to: type=gha,mode=max,scope=frankenphp-8.5
-
-  frankenphp-8-5-alpine:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v7
-        with:
-          context: frankenphp/8.5-alpine
-          platforms: linux/amd64,linux/arm64
-          pull: true
-          push: true
-          tags: |
-            ghcr.io/ubasgezer/frankenphp/base:8.5-alpine
-          cache-from: type=gha,scope=frankenphp-8.5-alpine
-          cache-to: type=gha,mode=max,scope=frankenphp-8.5-alpine
-
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        env:
+          NAME: ${{ matrix.image.name }}
+          TAG: ${{ matrix.image.tag }}
+        run: |
+          # Don't publish a single-arch tag if one platform failed
+          if [ "$(ls | wc -l)" -ne 2 ]; then
+            echo "::error::expected 2 platform digests, found $(ls | wc -l)"
+            exit 1
+          fi
+          docker buildx imagetools create -t "$NAME:$TAG" $(printf "$NAME@sha256:%s " *)
+          docker buildx imagetools inspect "$NAME:$TAG"
