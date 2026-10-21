@@ -9,7 +9,7 @@ RUN set -eux; \
         gettext \
         supervisor \
         nano && \
-        install-php-extensions apcu bcmath calendar intl opcache pcntl pdo_mysql protobuf redis soap xsl zip @composer
+        (for i in 1 2 3; do install-php-extensions apcu bcmath calendar intl opcache pcntl pdo_mysql protobuf redis soap xsl zip @composer && exit 0; sleep 30; done; exit 1)
 
 ENV APP_ENV=prod
 ENV SERVER_ROOT=/var/www/app/public
